@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Dev Front-end</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0E0F1A;
+    --surface: #16182B;
+    --surface2: #1E2038;
+    --border: rgba(255,255,255,0.08);
+    --text: #E8E9F3;
+    --muted: #6B6E8A;
+    --accent1: #7B61FF;
+    --accent2: #00E5A0;
+    --accent3: #FF6B6B;
+    --accent4: #FFB547;
+    --done-bg: rgba(0,229,160,0.08);
+    --done-border: rgba(0,229,160,0.3);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .header-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, #7B61FF 60%, #00E5A0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .global-progress {
+    max-width: 680px;
+    margin: 0 auto 3rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+  }
+  .gp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .gp-label {
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .gp-percent {
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent2);
+    font-weight: 700;
+  }
+  .gp-bar-wrap {
+    background: rgba(255,255,255,0.05);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .gp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    border-radius: 100px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: 0%;
+  }
+
+  .phases {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .phase.all-done {
+    border-color: var(--done-border);
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(0,229,160,0.04) 100%);
+  }
+
+  .phase-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+
+  .phase-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .p1 .phase-number { background: rgba(123,97,255,0.15); color: var(--accent1); border: 1px solid rgba(123,97,255,0.3); }
+  .p2 .phase-number { background: rgba(0,229,160,0.1); color: var(--accent2); border: 1px solid rgba(0,229,160,0.25); }
+  .p3 .phase-number { background: rgba(255,181,71,0.1); color: var(--accent4); border: 1px solid rgba(255,181,71,0.25); }
+  .p4 .phase-number { background: rgba(255,107,107,0.1); color: var(--accent3); border: 1px solid rgba(255,107,107,0.25); }
+
+  .phase-info { flex: 1; min-width: 0; }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+  .phase-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .phase-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  .phase-done-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .phase-check-all {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .phase-header:hover .phase-check-all { display: block; }
+  .phase-check-all:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .phase-chevron {
+    color: var(--muted);
+    font-size: 14px;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+  }
+  .phase.open .phase-chevron { transform: rotate(180deg); }
+
+  .phase-prog-wrap {
+    height: 3px;
+    background: rgba(255,255,255,0.04);
+    margin: 0 1.5rem;
+  }
+  .phase-prog-bar {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .p1 .phase-prog-bar { background: var(--accent1); }
+  .p2 .phase-prog-bar { background: var(--accent2); }
+  .p3 .phase-prog-bar { background: var(--accent4); }
+  .p4 .phase-prog-bar { background: var(--accent3); }
+
+  .phase-body {
+    display: none;
+    padding: 1.25rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .phase.open .phase-body { display: block; }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  .topics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .topic-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .topic-item:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--border);
+  }
+  .topic-item.done {
+    background: var(--done-bg);
+    border-color: var(--done-border);
+  }
+
+  .topic-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--muted);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 11px;
+  }
+  .topic-item.done .topic-checkbox {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #000;
+  }
+
+  .topic-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+    transition: all 0.2s;
+  }
+  .topic-item.done .topic-text {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--accent2);
+  }
+
+  .project-card {
+    margin-top: 0.5rem;
+    background: rgba(123,97,255,0.06);
+    border: 1px solid rgba(123,97,255,0.2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+  .project-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent1);
+    margin-bottom: 0.4rem;
+  }
+  .project-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .phase-complete-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-top: 1rem;
+    padding: 10px 14px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid var(--done-border);
+    border-radius: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+  }
+  .phase.all-done .phase-complete-badge { display: flex; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-label">✦ Seu Roadmap Pessoal</span>
+  <h1>Dev Front-end</h1>
+  <p>// marque cada item conforme for avançando</p>
+</div>
+
+<div class="global-progress">
+  <div class="gp-header">
+    <span class="gp-label">Progresso total</span>
+    <span class="gp-percent" id="global-pct">0%</span>
+  </div>
+  <div class="gp-bar-wrap">
+    <div class="gp-bar" id="global-bar"></div>
+  </div>
+</div>
+
+<div class="phases" id="phases-container"></div>
+
+<script>
+const STORAGE_KEY = 'roadmap_v1';
+
+const data = [
+  {
+    id: 'p1', cls: 'p1',
+    number: 'FASE 01',
+    title: 'JavaScript de verdade',
+    duration: '~5 semanas · 1–2h/dia',
+    project: 'To-Do App em JS puro — sem frameworks. Adicionar, remover, marcar e filtrar tarefas. Publicar no GitHub.',
+    sections: [
+      {
+        label: 'Funções e escopo',
+        topics: [
+          'Funções: declaração, expressão, arrow functions',
+          'Parâmetros default e rest (...args)',
+          'Escopo: var, let e const — diferenças na prática',
+          'Hoisting — o que é e por que importa',
+        ]
+      },
+      {
+        label: 'Closures e this',
+        topics: [
+          'O que é uma closure e como funciona',
+          'Casos de uso reais de closures',
+          'O this e como ele muda de contexto',
+          'call, apply e bind',
+        ]
+      },
+      {
+        label: 'Arrays e Objetos',
+        topics: [
+          'map, filter e reduce — os três essenciais',
+          'forEach, find, some, every, flat',
+          'Destructuring de arrays e objetos',
+          'Spread operator e rest em objetos',
+          'Objetos: criação, cópia, merge',
+        ]
+      },
+      {
+        label: 'Módulos e DOM',
+        topics: [
+          'Módulos ES6: import e export',
+          'Seleção de elementos (querySelector, getElementById)',
+          'Manipulação do DOM: criar, editar, remover elementos',
+          'Eventos: addEventListener, preventDefault',
+          'LocalStorage: salvar e recuperar dados',
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p2', cls: 'p2',
+    number: 'FASE 02',
+    title: 'JavaScript Assíncrono',
+    duration: '~3 semanas · 1–2h/dia',
+    project: 'Buscador de filmes com a API do TMDB. Campo de busca, loading, exibição dos resultados e tratamento de erros. Publicar no GitHub.',
+    sections: [
+      {
+        label: 'Callbacks e Promises',
+        topics: [
+          'O que são callbacks e qual o problema deles',
+          'Callback hell — entender para evitar',
+          'Promises: criação e estrutura',
+          '.then(), .catch() e .finally()',
+        ]
+      },
+      {
+        label: 'Async/Await e fetch',
+        topics: [
+          'async e await — a forma moderna',
+          'try/catch para tratamento de erros',
+          'fetch API — fazer requisições HTTP',
+          'Ler e tratar o response (JSON)',
+          'Promise.all e Promise.race',
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p3', cls: 'p3',
+    number: 'FASE 03',
+    title: 'React do Zero',
+    duration: '~6 semanas · 1–2h/dia',
+    project: 'Portfólio pessoal com 3 páginas (sobre, projetos, contato). Publicar no Vercel com domínio — esse link vai no currículo.',
+    sections: [
+      {
+        label: 'Fundamentos',
+        topics: [
+          'O que é React e por que usá-lo',
+          'JSX — HTML dentro do JavaScript',
+          'Componentes funcionais',
+          'Props — passando dados entre componentes',
+          'Renderização condicional e listas',
+        ]
+      },
+      {
+        label: 'Hooks essenciais',
+        topics: [
+          'useState — gerenciar estado local',
+          'useEffect — efeitos colaterais e ciclo de vida',
+          'Formulários e eventos no React',
+          'Consumindo API com useEffect + fetch',
+        ]
+      },
+      {
+        label: 'Estrutura e deploy',
+        topics: [
+          'React Router — navegação entre páginas',
+          'Organização de pastas em projetos React',
+          'Deploy no Vercel (grátis e rápido)',
+          'Variáveis de ambiente (.env)',
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p4', cls: 'p4',
+    number: 'FASE 04',
+    title: 'Preparação pro Emprego',
+    duration: '~4 semanas · 1–2h/dia',
+    project: '1 projeto completo e bem documentado no GitHub, com README detalhado, prints e link do deploy. Esse é seu cartão de visita.',
+    sections: [
+      {
+        label: 'Git e GitHub',
+        topics: [
+          'Comandos básicos: init, add, commit, push, pull',
+          'Branches e merge',
+          'Boas práticas de commits (mensagens claras)',
+          'Pull requests — básico para trabalho em equipe',
+        ]
+      },
+      {
+        label: 'Lógica e algoritmos',
+        topics: [
+          'Exercícios fáceis no LeetCode ou Beecrowd',
+          'Lógica com arrays e strings',
+          'Two pointers e sliding window (básico)',
+        ]
+      },
+      {
+        label: 'Empregabilidade',
+        topics: [
+          'LinkedIn otimizado com palavras-chave de front-end',
+          'Currículo focado em projetos (não em empregos antigos)',
+          'README caprichado nos repositórios',
+          'Participar de comunidades de devs (Discord, Telegram)',
+          'Candidatura: aplicar mesmo sem preencher 100% dos requisitos',
+        ]
+      }
+    ]
+  }
+];
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveState(state) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+}
+
+let state = loadState();
+
+function getAllTopicIds(phase) {
+  const ids = [];
+  phase.sections.forEach((sec, si) => {
+    sec.topics.forEach((_, ti) => ids.push(`${phase.id}_${si}_${ti}`));
+  });
+  return ids;
+}
+
+function countDone(phase) {
+  return getAllTopicIds(phase).filter(id => state[id]).length;
+}
+
+function countTotal(phase) {
+  return getAllTopicIds(phase).length;
+}
+
+function countGlobal() {
+  let done = 0, total = 0;
+  data.forEach(p => { done += countDone(p); total += countTotal(p); });
+  return { done, total };
+}
+
+function updateGlobal() {
+  const { done, total } = countGlobal();
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('global-pct').textContent = pct + '%';
+  document.getElementById('global-bar').style.width = pct + '%';
+}
+
+function updatePhase(phase) {
+  const done = countDone(phase);
+  const total = countTotal(phase);
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const el = document.getElementById('phase-' + phase.id);
+  el.querySelector('.phase-prog-bar').style.width = pct + '%';
+  el.querySelector('.phase-done-count').textContent = done + '/' + total;
+  el.classList.toggle('all-done', done === total);
+  updateGlobal();
+}
+
+function toggleTopic(phaseId, topicId) {
+  state[topicId] = !state[topicId];
+  saveState(state);
+  const el = document.getElementById('topic-' + topicId);
+  el.classList.toggle('done', state[topicId]);
+  el.querySelector('.topic-checkbox').innerHTML = state[topicId] ? '✓' : '';
+  updatePhase(data.find(p => p.id === phaseId));
+}
+
+function togglePhase(phaseId) {
+  document.getElementById('phase-' + phaseId).classList.toggle('open');
+}
+
+function checkAll(phaseId, e) {
+  e.stopPropagation();
+  const phase = data.find(p => p.id === phaseId);
+  const ids = getAllTopicIds(phase);
+  const allDone = ids.every(id => state[id]);
+  ids.forEach(id => { state[id] = !allDone; });
+  saveState(state);
+  ids.forEach(id => {
+    const el = document.getElementById('topic-' + id);
+    if (el) {
+      el.classList.toggle('done', state[id]);
+      el.querySelector('.topic-checkbox').innerHTML = state[id] ? '✓' : '';
+    }
+  });
+  updatePhase(phase);
+}
+
+function render() {
+  const container = document.getElementById('phases-container');
+  container.innerHTML = '';
+
+  data.forEach((phase) => {
+    const done = countDone(phase);
+    const total = countTotal(phase);
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const allDone = done === total;
+
+    const phaseEl = document.createElement('div');
+    phaseEl.className = `phase ${phase.cls}${allDone ? ' all-done' : ''}`;
+    phaseEl.id = 'phase-' + phase.id;
+
+    let topicsHTML = '';
+    phase.sections.forEach((sec, si) => {
+      topicsHTML += `<div class="section-label">${sec.label}</div><div class="topics-grid">`;
+      sec.topics.forEach((topic, ti) => {
+        const id = `${phase.id}_${si}_${ti}`;
+        const isDone = !!state[id];
+        topicsHTML += `
+          <div class="topic-item${isDone ? ' done' : ''}" id="topic-${id}" onclick="toggleTopic('${phase.id}', '${id}')">
+            <div class="topic-checkbox">${isDone ? '✓' : ''}</div>
+            <div class="topic-text">${topic}</div>
+          </div>`;
+      });
+      topicsHTML += '</div>';
+    });
+
+    phaseEl.innerHTML = `
+      <div class="phase-header" onclick="togglePhase('${phase.id}')">
+        <span class="phase-number">${phase.number}</span>
+        <div class="phase-info">
+          <div class="phase-title">${phase.title}</div>
+          <div class="phase-meta">${phase.duration}</div>
+        </div>
+        <div class="phase-stats">
+          <span class="phase-done-count">${done}/${total}</span>
+          <button class="phase-check-all" onclick="checkAll('${phase.id}', event)">marcar todas</button>
+        </div>
+        <span class="phase-chevron">▾</span>
+      </div>
+      <div class="phase-prog-wrap">
+        <div class="phase-prog-bar" style="width:${pct}%"></div>
+      </div>
+      <div class="phase-body">
+        ${topicsHTML}
+        <div class="section-label" style="margin-top:1.25rem">Projeto da fase</div>
+        <div class="project-card">
+          <div class="project-label">◆ Entregável</div>
+          <div class="project-text">${phase.project}</div>
+        </div>
+        <div class="phase-complete-badge">
+          <span>✦</span> Fase completa! Hora de avançar.
+        </div>
+      </div>`;
+
+    container.appendChild(phaseEl);
+  });
+
+  const firstIncomplete = data.find(p => countDone(p) < countTotal(p));
+  if (firstIncomplete) {
+    document.getElementById('phase-' + firstIncomplete.id).classList.add('open');
+  } else {
+    document.getElementById('phase-' + data[0].id).classList.add('open');
+  }
+
+  updateGlobal();
+}
+
+render();
+</script>
+</body>
+</html>
