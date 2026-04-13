@@ -1,4 +1,4 @@
-# Roteiro Pessoal — Dev Front-end
+# Road Map Pessoal — Dev Front-end
 
 Roadmap interativo de estudos para desenvolvimento front-end, organizado em fases progressivas com acompanhamento de progresso.
 
